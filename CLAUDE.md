@@ -4,21 +4,36 @@ A personal knowledge base of protein biology papers, following the LLM Wiki patt
 
 ```text
 Original PDF -> sources/*.md (structured paper summary) -> wiki/{category}/*.md (final page)
+Internal report -> sources/reports/*.md (split report notes) -> wiki/drug-design/*.md or wiki/overviews/*.md
 ```
 
-Language policy: all wiki content is written in English. Conversation with the user can be in any language.
+Language policy: Most generated content may be written in Korean. Conversation with the user can be in any language.
 
 ## Core Rules
 
-These rules keep every claim traceable to papers that exist in this repository.
+These rules keep every claim traceable to local evidence that exists in this repository.
 
 1. Do not use web search to answer scientific questions or fill gaps in wiki content.
 2. Answer from `sources/` and `wiki/` first.
 3. If the wiki is insufficient, re-read the matching PDF in `papers/`, extract more detail, and update the relevant source and wiki pages.
 4. If the wiki has no paper on the topic, say: "I don't have a paper on this; please give me the PDF." Do not improvise.
 5. Literature Location Mode is the only exception to rule 1. Use it only when the user asks to find papers or provides a protein, gene, target, pathway, disease, indication, or biological concept without PDFs. Return locations and identifiers only. Do not generate wiki claims.
+6. Internal reports can guide hypotheses, strategy, assays, and literature backlogs, but they are not equivalent to papers. Mark report-derived claims as hypotheses unless they are supported by ingested PDFs.
 
 These rules apply to every response, including overview pages. Cite only papers that exist in the wiki unless operating in Literature Location Mode.
+
+## Evidence Hierarchy
+
+Use this priority order when answering, writing wiki pages, or resolving conflicts:
+
+1. Local PDFs in `papers/`
+2. Structured paper summaries in `sources/`
+3. Wiki pages derived from local PDFs
+4. Archived internal reports in `reports/`
+5. Split report notes in `sources/reports/`
+6. Report-derived strategy pages in `wiki/drug-design/` or `wiki/overviews/`
+
+Internal reports are useful as planning files, but they are not primary scientific evidence. A report-derived scientific or clinical claim must be labeled as `hypothesis` unless supported by a local PDF that has already been ingested.
 
 ## Repository Structure
 
@@ -28,10 +43,15 @@ protein-wiki/
 |-- index.md
 |-- papers/
 |   `-- {author}-{year}-{title-5-words}.pdf
+|-- reports/
+|   `-- {source}-{year}-{target}-{report-topic}.md
 |-- sources/
-|   `-- {author}-{year}-{title-5-words}.md
+|   |-- {author}-{year}-{title-5-words}.md
+|   `-- reports/
+|       `-- {target}-{source}-{section-topic}.md
 |-- wiki/
 |   |-- proteins/
+|   |-- drug-design/
 |   |-- structural-biology/
 |   |-- biochemistry/
 |   |-- proteomics/
@@ -79,6 +99,7 @@ Classify by primary method or evidence type, not by phenotype alone.
 | `protein-engineering` | Directed evolution, rational design, variant libraries, stability design, enzyme or binder engineering |
 | `therapeutics` | Antibodies, biologics, degraders, inhibitors, target validation with therapeutic intent |
 | `proteins` | Protein-level hub pages that group all papers, diseases, mechanisms, and drug development notes for one target |
+| `drug-design` | Report-derived or paper-supported strategy pages, assay cascades, ADMET/safety plans, competitive/IP notes, and development roadmaps |
 | `concepts` | Methods, assays, algorithms, and reusable background explanations |
 | `overviews` | Synthesis pages spanning multiple papers |
 | `other` | Cross-cutting or miscellaneous papers that do not fit cleanly elsewhere |
@@ -136,6 +157,48 @@ For each paper, provide:
 
 If no relevant paper is found, say so clearly.
 
+## Mode C: Internal Report Ingestion Mode
+
+Use this mode when the user provides an internal report, AI-generated target review, feasibility report, drug design report, competitive assessment, or strategy document.
+
+Workflow:
+
+```text
+Internal report -> reports/*.md -> sources/reports/*.md -> wiki/drug-design/*.md -> wiki/proteins/{target}.md -> index.md
+```
+
+Rules:
+
+- Archive the original report in `reports/`.
+- Do not treat reports as papers.
+- Do not put report-derived claims into normal paper source pages.
+- Split the report into topic-specific source notes under `sources/reports/`.
+- Create separate wiki pages for target biology, structural analysis, strategy pages, assay plans, ADMET/safety, competitive landscape, and literature backlog when useful.
+- Every report-derived source note and wiki page must include `source_type` and `evidence_level` metadata.
+- Mark report-derived scientific or clinical claims as hypotheses unless supported by ingested PDFs.
+- Update the relevant protein hub with a clearly labeled report-derived section.
+- Update `index.md`.
+
+Suggested split for drug design reports:
+
+| Report section | Source note | Wiki page |
+|---|---|---|
+| Target biology | `sources/reports/{target}-{source}-target-biology.md` | `wiki/drug-design/{target}-target-biology.md` or protein hub |
+| Structural analysis | `sources/reports/{target}-{source}-structural-analysis.md` | `wiki/drug-design/{target}-structural-design-map.md` |
+| Existing drugs | `sources/reports/{target}-{source}-existing-drugs.md` | `wiki/drug-design/{target}-existing-drug-landscape.md` |
+| Small molecule strategy | `sources/reports/{target}-{source}-small-molecule-strategy.md` | `wiki/drug-design/{target}-ser273-spparm-strategy.md` |
+| Covalent strategy | `sources/reports/{target}-{source}-covalent-strategy.md` | `wiki/drug-design/{target}-cys285-covalent-strategy.md` |
+| PROTAC/degrader strategy | `sources/reports/{target}-{source}-protac-strategy.md` | `wiki/drug-design/{target}-galnac-protac-strategy.md` |
+| Molecular glue strategy | `sources/reports/{target}-{source}-molecular-glue-strategy.md` | `wiki/drug-design/{target}-ncor-glue-strategy.md` |
+| Research-tool biology | `sources/reports/{target}-{source}-research-tools.md` | `wiki/drug-design/{target}-research-tool-biology.md` |
+| Assay cascade | `sources/reports/{target}-{source}-assay-cascade.md` | `wiki/drug-design/{target}-assay-cascade.md` |
+| ADMET/safety | `sources/reports/{target}-{source}-admet-safety.md` | `wiki/drug-design/{target}-admet-safety-risk.md` |
+| Competitive/IP | `sources/reports/{target}-{source}-competitive-ip.md` | `wiki/drug-design/{target}-competitive-ip.md` |
+| Data gaps/literature backlog | `sources/reports/{target}-{source}-data-gaps.md` | `wiki/drug-design/{target}-data-gaps-and-literature-backlog.md` |
+| Program roadmap | `sources/reports/{target}-{source}-roadmap.md` | `wiki/overviews/{target}-drug-design-roadmap.md` |
+
+When a report cites papers that are not yet in `papers/`, list them as a literature backlog. Do not present those claims as paper-grounded until the PDFs are ingested.
+
 ## Adding a New Paper
 
 1. Copy the PDF into `papers/`.
@@ -157,7 +220,7 @@ On this Windows workspace, `python` may point to Python 2. Use the bundled Pytho
 
 ## Metadata Requirements
 
-Every source and wiki page should include YAML front matter with:
+Every paper source and paper-derived wiki page should include YAML front matter with:
 
 ```yaml
 ---
@@ -179,11 +242,52 @@ source: {stem}.md
 tags: []
 ```
 
+Report source notes should include:
+
+```yaml
+---
+title: "Report Section Title"
+target: TARGET
+protein: Protein Name
+report_author: Report Author or System
+report_date: YYYY-MM-DD
+source_type: internal-report-derived
+evidence_level: hypothesis
+original_report: /full/path/to/reports/{stem}.md
+report_section: "Section Name"
+supported_by_ingested_papers: []
+not_yet_ingested_references: []
+tags: []
+---
+```
+
+Report-derived wiki pages should include:
+
+```yaml
+---
+title: "Strategy or Analysis Page Title"
+target: TARGET
+protein: Protein Name
+category: drug-design
+source_type: internal-report-derived
+evidence_level: hypothesis
+source: reports/{section-source}.md
+original_report: /full/path/to/reports/{stem}.md
+supported_by_ingested_papers: []
+not_yet_ingested_references: []
+tags: []
+---
+```
+
+Use `evidence_level: mixed` only when the page explicitly separates paper-supported claims from report-derived hypotheses.
+
 ## Knowledge Compounding
 
 The most valuable pages are `wiki/overviews/` pages that synthesize across papers already present in the wiki. When a question is answered well and the user asks to save it, create or update an overview page in `wiki/overviews/`.
 
 Overview pages must cite only papers that exist in `sources/` and `wiki/`.
+
+Report-derived overview pages may synthesize strategy, assay plans, and literature backlogs from internal reports, but they must clearly state that they are report-derived and hypothesis-level unless supported by ingested PDFs.
 
 ## Browsing With Obsidian
 
