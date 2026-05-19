@@ -166,15 +166,18 @@ Workflow:
 ```text
 Internal report -> reports/*.md -> sources/reports/*.md -> wiki/drug-design/*.md -> wiki/proteins/{target}.md -> index.md
 ```
-HTML reports:
+Report input formats:
 
-- If an internal report is provided as `.html`, first normalize it into markdown before using it as a source.
-- Archive the raw HTML when possible, but do not treat raw HTML as the working source directly.
-- Remove `style`, `script`, `noscript`, toolbar, navigation, search boxes, print controls, duplicate headings, collapsed-section markers, and other UI-only text.
-- Preserve scientific or strategic content, heading hierarchy, tables, lists, and section order.
-- Write the cleaned markdown copy under `reports/` and use that normalized markdown file as `original_report` for downstream `sources/reports/*.md` and `wiki/*.md` pages.
-- Include `original_html` metadata when relevant.
-- HTML-derived claims follow the same report rules: mark them as `hypothesis` unless supported by ingested PDFs.
+- Internal reports may arrive as `.md`, `.html`, or `.pdf`.
+- Regardless of input format, the working source for Mode C is always a normalized markdown file under `reports/`.
+- For `.md` reports, copy or clean the report directly into `reports/`.
+- For `.html` reports, remove UI-only elements such as `style`, `script`, `noscript`, toolbar, navigation, search boxes, print controls, duplicate headings, and collapsed-section markers. Preserve scientific or strategic content, heading hierarchy, tables, lists, and section order, then write a cleaned markdown copy under `reports/`.
+- For `.pdf` reports, read the PDF or extract text when useful, then convert the report content into cleaned markdown under `reports/`.
+- Do not treat report PDFs as academic papers by default. Classify by content and user intent. A PDF report remains an internal report unless it is clearly an academic paper.
+- Use the normalized markdown file as `original_report` for downstream `sources/reports/*.md` and `wiki/*.md` pages.
+- Keep the raw original file path in metadata when useful, such as `original_pdf` or `original_html`.
+- Report-derived claims follow the same evidence rules regardless of input format: mark them as `hypothesis` unless supported by ingested academic PDFs.
+
 
 
 
