@@ -187,11 +187,52 @@ Rules:
 - Do not treat reports as papers.
 - Do not put report-derived claims into normal paper source pages.
 - Split the report into topic-specific source notes under `sources/reports/`.
+- Do not reduce a substantial report to a single target-level summary source note. A one-page source summary is allowed only as an index or executive pointer, not as the only source note for a long report.
+- Create a source index for each ingested report at `sources/reports/{target}-{source}-index.md`.
+- Do not create a drug-design wiki page directly from the full report. Build report-derived wiki pages from the split `sources/reports/*.md` notes.
 - Create separate wiki pages for target biology, structural analysis, strategy pages, assay plans, ADMET/safety, competitive landscape, and literature backlog when useful.
 - Every report-derived source note and wiki page must include `source_type` and `evidence_level` metadata.
 - Mark report-derived scientific or clinical claims as hypotheses unless supported by ingested PDFs.
 - Update the relevant protein hub with a clearly labeled report-derived section.
 - Update `index.md`.
+
+Required report splitting granularity:
+
+- Internal reports longer than 5 pages must be split into multiple section-specific source notes.
+- The default minimum split for a drug design report is:
+  1. target biology
+  2. structural analysis
+  3. druggability and binding sites
+  4. modality strategy
+  5. assay cascade
+  6. safety and liability
+  7. competitive landscape
+  8. IP and freedom to operate
+  9. clinical positioning
+  10. data gaps and literature backlog
+  11. program roadmap
+- If a report lacks one of these sections, omit that source note and record the omission in `sources/reports/{target}-{source}-index.md`.
+- If a report has target-specific sections that do not fit the default split, create additional notes using concise section names.
+- Each split source note should be narrow enough that a later wiki page can cite it as a specific evidence source, not just as a pointer to the whole report.
+
+Each report source index should include:
+
+- all split source notes for that target
+- the normalized report path in `reports/`
+- the raw original file path when available
+- which sections are report-derived hypotheses
+- which claims are supported by already-ingested PDFs
+- the literature backlog needed to convert hypotheses into paper-supported claims
+
+Each split report source note must include these sections:
+
+- Scope
+- Key claims
+- Design implications
+- Validation gates
+- Risks or caveats
+- Literature backlog
+
 
 Suggested split for drug design reports:
 
@@ -200,11 +241,13 @@ Suggested split for drug design reports:
 |---|---|---|
 | Target biology | `sources/reports/{target}-{source}-target-biology.md` | `wiki/drug-design/{target}-target-biology.md` or protein hub |
 | Structural analysis | `sources/reports/{target}-{source}-structural-analysis.md` | `wiki/drug-design/{target}-structural-design-map.md` |
+| Druggability and binding sites | `sources/reports/{target}-{source}-druggability-and-binding-sites.md` | `wiki/drug-design/{target}-druggability-and-binding-sites.md` |
 | Existing drugs | `sources/reports/{target}-{source}-existing-drugs.md` | `wiki/drug-design/{target}-existing-drug-landscape.md` |
-| Small molecule strategy | `sources/reports/{target}-{source}-small-molecule-strategy.md` | `wiki/drug-design/{target}-ser273-spparm-strategy.md` |
-| Covalent strategy | `sources/reports/{target}-{source}-covalent-strategy.md` | `wiki/drug-design/{target}-cys285-covalent-strategy.md` |
-| PROTAC/degrader strategy | `sources/reports/{target}-{source}-protac-strategy.md` | `wiki/drug-design/{target}-galnac-protac-strategy.md` |
-| Molecular glue strategy | `sources/reports/{target}-{source}-molecular-glue-strategy.md` | `wiki/drug-design/{target}-ncor-glue-strategy.md` |
+| Modality strategy | `sources/reports/{target}-{source}-modality-strategy.md` | `wiki/drug-design/{target}-modality-strategy.md` |
+| Small molecule strategy | `sources/reports/{target}-{source}-small-molecule-strategy.md` | `wiki/drug-design/{target}-small-molecule-strategy.md` |
+| Covalent strategy | `sources/reports/{target}-{source}-covalent-strategy.md` | `wiki/drug-design/{target}-covalent-strategy.md` |
+| PROTAC/degrader strategy | `sources/reports/{target}-{source}-protac-strategy.md` | `wiki/drug-design/{target}-protac-strategy.md` |
+| Molecular glue strategy | `sources/reports/{target}-{source}-molecular-glue-strategy.md`
 | Research-tool biology | `sources/reports/{target}-{source}-research-tools.md` | `wiki/drug-design/{target}-research-tool-biology.md` |
 | Assay cascade | `sources/reports/{target}-{source}-assay-cascade.md` | `wiki/drug-design/{target}-assay-cascade.md` |
 | ADMET/safety | `sources/reports/{target}-{source}-admet-safety.md` | `wiki/drug-design/{target}-admet-safety-risk.md` |
@@ -213,6 +256,14 @@ Suggested split for drug design reports:
 | Program roadmap | `sources/reports/{target}-{source}-roadmap.md` | `wiki/overviews/{target}-drug-design-roadmap.md` |
 
 When a report cites papers that are not yet in `papers/`, list them as a literature backlog. Do not present those claims as paper-grounded until the PDFs are ingested.
+
+Report-derived wiki page rules:
+
+- A target may have multiple report-derived wiki pages when the split source notes support them.
+- Every report-derived wiki page must cite the exact split source notes it used.
+- A high-level `wiki/drug-design/{target}-drug-design-feasibility.md` page may exist, but it should function as a synthesis and navigation page over split source notes, not as the only report-derived wiki page.
+- Use `wiki/overviews/{target}-drug-design-roadmap.md` for program-level roadmap synthesis.
+- Use `evidence_level: mixed` only when paper-supported claims and report-derived hypotheses are explicitly separated in the page.
 
 
 
@@ -275,6 +326,10 @@ report_section: "Section Name"
 supported_by_ingested_papers: []
 not_yet_ingested_references: []
 tags: []
+key_claims: []
+design_implications: []
+validation_gates: []
+risks_or_caveats: []
 ---
 ```
 
