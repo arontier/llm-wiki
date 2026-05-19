@@ -1,12 +1,12 @@
 # LLM Wiki: Building a Protein-Centered Knowledge Base for Papers with AI Agents
 
-A methodology for using Claude Code or OpenAI Codex to build and maintain a structured, searchable wiki from academic PDFs. This version is adapted for protein and target research: papers are still organized by method/category, but the main navigation layer is now protein-centered.
+A methodology for using Claude Code or OpenAI Codex to build and maintain a structured, searchable wiki from origin PDFs and internal research reports. This version is adapted for protein and target research: papers are still organized by method/category, but the main navigation layer is now protein-centered.
 
 This setup is based on joonan30's LLM Wiki guide:
 
 https://gist.github.com/joonan30/cbce305684d079dbe9a3fbaefe4e3959
 
-The original guide provides the general LLM Wiki pattern and `CLAUDE.md.template`. To use it here, customize that template for protein research and save it as `CLAUDE.md` in the project root. In this repository, `CLAUDE.md` is the agent's operating guide: it defines the Four Rules, folder structure, paper ingestion workflow, naming convention, and protein-hub behavior.
+The original guide provides the general LLM Wiki pattern and `CLAUDE.md.template`. To use it here, customize that template for protein research and save it as `CLAUDE.md` in the project root. In this repository, `CLAUDE.md` is the agent's operating guide: it defines the Four Rules, folder structure, paper ingestion workflow, internal report workflow, naming convention, and protein-hub behavior.
 
 > This is a starter template. Fork the structure, swap in your own protein targets and categories. The wiki only becomes useful once it reflects your domain, not someone else's.
 
@@ -29,6 +29,7 @@ Inspired by Karpathy's LLM Wiki pattern and joonan30's biology-oriented implemen
 
 ```text
 Original PDF -> LLM markdown summary (sources/) -> Structured wiki page (wiki/) -> Protein hub and overview synthesis
+Internal report -> normalized markdown (reports/) -> split report notes (sources/reports/) -> strategy wiki pages
 ```
 
 Each paper goes through a 3-tier pipeline:
@@ -42,6 +43,15 @@ This protein version adds a fourth navigation layer:
 4. `wiki/proteins/`: Protein-level hub pages that collect all papers, disease evidence, mechanisms, drug development notes, biomarkers, genetics, and overview pages for one target.
 
 Overview pages synthesize across papers. Protein hubs keep target-level knowledge easy to browse.
+
+Internal reports use a separate report-derived pipeline:
+
+1. `reports/`: Normalized markdown report, plus raw report files when useful.
+2. `sources/reports/`: Topic-specific report notes.
+3. `wiki/drug-design/` or `wiki/overviews/`: Report-derived strategy pages.
+4. `wiki/proteins/`: The relevant protein hub links the report-derived section.
+
+Report-derived claims are planning hypotheses unless supported by ingested academic PDFs.
 
 ## What Changed In The Protein Version
 
@@ -91,10 +101,14 @@ protein-llm-wiki/
 |-- index.md                # Page catalog
 |-- papers/                 # Original PDFs copied into the repository
 |   `-- {author}-{year}-{title-5-words}.pdf
+|-- reports/                # Internal reports normalized to markdown, plus raw report files
+|   `-- {source}-{year}-{target}-{report-topic}.md
 |-- sources/                # Structured PDF summaries
-|   `-- {author}-{year}-{title-5-words}.md
+|   |-- {author}-{year}-{title-5-words}.md
+|   `-- reports/            # Split source notes from internal reports
 |-- wiki/                   # Final wiki pages
 |   |-- proteins/           # Protein-level hub pages
+|   |-- drug-design/         # Report-derived or paper-supported strategy pages
 |   |-- biochemistry/
 |   |-- structural-biology/
 |   |-- proteomics/
@@ -281,6 +295,44 @@ Return:
 
 Do not create wiki pages in this mode. Once PDFs are provided, switch to PDF ingestion mode.
 
+### Mode C: Internal Report Ingestion Mode
+
+Use when the user provides an internal report, AI-generated target review, feasibility report, drug design report, competitive assessment, or strategy document.
+
+```text
+report.md / report.html / report.pdf
+-> reports/{normalized-report}.md
+-> sources/reports/*.md
+-> wiki/drug-design/*.md or wiki/overviews/*.md
+-> wiki/proteins/{target}.md
+-> index.md
+```
+
+Internal reports are not academic papers by default. They can guide strategy, assay planning, ADMET thinking, competitive landscape, and literature backlog, but scientific and clinical claims remain `hypothesis` unless supported by ingested academic PDFs.
+
+Report input handling:
+
+- `.md`: copy or clean directly into `reports/`.
+- `.html`: remove UI-only elements and convert meaningful content into cleaned markdown under `reports/`.
+- `.pdf`: read the PDF or extract text when useful, then convert the report content into cleaned markdown under `reports/`.
+- Keep raw original paths in metadata when useful, such as `original_pdf` or `original_html`.
+- Use the normalized markdown file as `original_report` for downstream report-derived pages.
+
+Recommended split for drug design reports:
+
+| Report section | Source note | Wiki page |
+|---|---|---|
+| Target biology | `sources/reports/{target}-{source}-target-biology.md` | `wiki/drug-design/{target}-target-biology.md` |
+| Structural analysis | `sources/reports/{target}-{source}-structural-analysis.md` | `wiki/drug-design/{target}-structural-design-map.md` |
+| Existing drugs | `sources/reports/{target}-{source}-existing-drugs.md` | `wiki/drug-design/{target}-existing-drug-landscape.md` |
+| Small molecule strategy | `sources/reports/{target}-{source}-small-molecule-strategy.md` | `wiki/drug-design/{target}-{strategy}.md` |
+| Assay cascade | `sources/reports/{target}-{source}-assay-cascade.md` | `wiki/drug-design/{target}-assay-cascade.md` |
+| ADMET/safety | `sources/reports/{target}-{source}-admet-safety.md` | `wiki/drug-design/{target}-admet-safety-risk.md` |
+| Research tools | `sources/reports/{target}-{source}-research-tools.md` | `wiki/drug-design/{target}-research-tool-biology.md` |
+| Data gaps | `sources/reports/{target}-{source}-data-gaps.md` | `wiki/drug-design/{target}-data-gaps-and-literature-backlog.md` |
+| Roadmap | `sources/reports/{target}-{source}-roadmap.md` | `wiki/overviews/{target}-drug-design-roadmap.md` |
+
+
 ## Categories
 
 Classify by method or evidence type, not just topic.
@@ -292,6 +344,7 @@ Classify by method or evidence type, not just topic.
 | `structural-biology` | Structures, complexes, binding architecture |
 | `proteomics` | Proteome signatures, biomarkers, large-scale protein profiling |
 | `therapeutics` | Clinical trials, inhibitors, agonists, drug development |
+| `drug-design` | Report-derived or paper-supported strategy pages, assay cascades, ADMET/safety plans, research-tool biology, and roadmaps |
 | `concepts` | Reusable background explanations |
 | `overviews` | Cross-paper synthesis pages |
 | `other` | Genetics, epidemiology, miscellaneous evidence |
@@ -321,6 +374,10 @@ Below that scale, `index.md`, `rg`, Obsidian search, and the agent's built-in se
 # If the wiki is insufficient, re-read the PDF and update the wiki.
 # If no paper exists, ask for the PDF.
 # For protein research, update wiki/proteins/{target}.md whenever a paper belongs to a tracked target.
+# Internal reports go through reports/ -> sources/reports/ -> wiki/drug-design/ or wiki/overviews/.
+# Report-derived claims are hypotheses unless supported by ingested academic PDFs.
+# Report PDFs are not treated as academic papers by default; classify by content and user intent.
+```
 ```
 
 In other words: the gist gives the template; this repository uses `CLAUDE.md` as the customized protein-version implementation.
