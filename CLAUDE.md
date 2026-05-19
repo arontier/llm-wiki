@@ -166,6 +166,17 @@ Workflow:
 ```text
 Internal report -> reports/*.md -> sources/reports/*.md -> wiki/drug-design/*.md -> wiki/proteins/{target}.md -> index.md
 ```
+HTML reports:
+
+- If an internal report is provided as `.html`, first normalize it into markdown before using it as a source.
+- Archive the raw HTML when possible, but do not treat raw HTML as the working source directly.
+- Remove `style`, `script`, `noscript`, toolbar, navigation, search boxes, print controls, duplicate headings, collapsed-section markers, and other UI-only text.
+- Preserve scientific or strategic content, heading hierarchy, tables, lists, and section order.
+- Write the cleaned markdown copy under `reports/` and use that normalized markdown file as `original_report` for downstream `sources/reports/*.md` and `wiki/*.md` pages.
+- Include `original_html` metadata when relevant.
+- HTML-derived claims follow the same report rules: mark them as `hypothesis` unless supported by ingested PDFs.
+
+
 
 Rules:
 
@@ -180,6 +191,7 @@ Rules:
 - Update `index.md`.
 
 Suggested split for drug design reports:
+
 
 | Report section | Source note | Wiki page |
 |---|---|---|
@@ -198,6 +210,8 @@ Suggested split for drug design reports:
 | Program roadmap | `sources/reports/{target}-{source}-roadmap.md` | `wiki/overviews/{target}-drug-design-roadmap.md` |
 
 When a report cites papers that are not yet in `papers/`, list them as a literature backlog. Do not present those claims as paper-grounded until the PDFs are ingested.
+
+
 
 ## Adding a New Paper
 
