@@ -1,4 +1,4 @@
-# LLM Wiki: Building a Protein-Centered Knowledge Base for Academic Papers with AI Agents
+# LLM Wiki: Building a Protein-Centered Knowledge Base for Papers with AI Agents
 
 A methodology for using Claude Code or OpenAI Codex to build and maintain a structured, searchable wiki from academic PDFs. This version is adapted for protein and target research: papers are still organized by method/category, but the main navigation layer is now protein-centered.
 
@@ -81,7 +81,7 @@ Each protein hub should include:
 - Biomarkers or genetics
 - Best overview pages
 - Open questions
-
+``
 ## Repository Structure
 
 ```text
@@ -312,7 +312,7 @@ Below that scale, `index.md`, `rg`, Obsidian search, and the agent's built-in se
 `CLAUDE.md` is the real control surface for the agent. It should include:
 
 ```markdown
-# All wiki content in English.
+# All wiki content in Korean or English.
 # Conversation can be in any language.
 # PDFs are copied into papers/ and never symlinked.
 # pdf_path always points inside papers/.
